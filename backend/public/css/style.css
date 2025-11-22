@@ -82,5 +82,24 @@ justify-content: center;
 }
 .add-btn{
   background: #cb1a34 !important;
-  border: none !important;;
+  border: none !important;
+}
+/* show page */
+.show-img{
+  height: 30vh;
+  
+}
+
+.edit-btn{
+   border: none !important;
+   padding-right: 1rem !important;
+}
+.btns{
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.show-card{
+  padding-left: 0;
+  padding-right: 0;
 }

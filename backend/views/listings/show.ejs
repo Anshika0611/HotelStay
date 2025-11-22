@@ -1,16 +1,32 @@
-<%- layout('/layouts/boilerplate') %> 
+<%- layout('/layouts/boilerplate') %>
 <body>
-    <h1>Would U like to stay here</h1>
-    <ul>
-        <li><%=post.title%></li>
-        <li><%=post.description%></li>
-        <li>&#x20b9; <%=post.price.toLocaleString("en-IN")%></li>
-        <li><%=post.location%></li>
-        <li><%=post.country%></li>
-        
-    </ul><br>
-    <a href="/listing/<%=post._id %>/edit">Edit this List</a><br>
+  <div class="row mt-3">
+    <div class="col-8 offset-3">
+      <h1>Would U like to stay here</h1>
+    </div>
+    <div class="card col-6 offset-3 show-card">
+      <img
+        src="<%= post.image.url%>"
+        class="card-img-top show-img"
+        alt="listingimage"
+      />
+      <div class="card-body">
+        <p class="card-text">
+          <b><%=post.title%></b> <br />
+          <%=post.description%> <br />
+          &#x20b9; <%=post.price.toLocaleString("en-IN")%> <br />
+          <%=post.location%> <br />
+          <%=post.country%> <br />
+        </p>
+      </div>
+    </div>
+    <br />
+  </div>
+   <div class="btns">
+    <a href="/listing/<%=post._id %>/edit" class="btn btn-dark offset-3 edit-btn ">Edit</a><br />
+
     <form method="post" action="/listing/<%=post.id%>?_method=Delete">
-        <button type="submit">Delete</button>
+      <button class="btn btn-dark offset-5 add-btn" type="submit">Delete</button>
     </form>
+    </div>
 </body>

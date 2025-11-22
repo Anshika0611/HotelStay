@@ -69,7 +69,7 @@ app.post('/listing',async(req,res)=>{
         };
     }
     const newListing=new List(listing)
-    // await newListing.save()
+    await newListing.save()
     // console.log(newListing);
     res.redirect('/listing')
 })
