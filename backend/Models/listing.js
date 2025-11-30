@@ -1,4 +1,5 @@
 const mongoose=require('mongoose')
+const Review=require('./review.js')
 let Schema=mongoose.Schema
 
 const listingSchema=new Schema({
@@ -13,7 +14,6 @@ const listingSchema=new Schema({
         filename:{
             type:String,
             default: "listingimage",
-
         },
         url:{
         type:String,
@@ -31,8 +31,22 @@ const listingSchema=new Schema({
     },
     country:{
         type:String,
-    }
+    },
+    reviews:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'Review'
+        }
+    ]
+
 })
+
+// post mongoose m/w
+listingSchema.post('findOneAndDelete',async(data)=>{
+    if(data.reviews.length){
+        await Review.deleteMany({_id:{$in:data.reviews}})
+    }
+}) 
 
 const List=mongoose.model('List',listingSchema)
 

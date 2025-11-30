@@ -1,67 +1,76 @@
 <%- layout('/layouts/boilerplate') %>
 <body>
-    <br><br>
-    <div class="row">
+  <br /><br />
+  <div class="row">
     <div class="col-8 offset-2">
-  <form method="post" action="/listing">
-    <div class="mb-3">
-      <label for="title" class="form-label">Title</label>
-      <input
-        name="listing[title]"
-        placeholder="Add a catchy title"
-        class="form-control"
-      />
-    </div>
-    <div class="mb-3">
-      <label for="description" class="form-label">Description</label>
-      <textarea        
-        name="listing[description]"
-        placeholder="Enter the description"
-        type="text"
-        class="form-control"
-      ></textarea>
-    </div>
-    <div class="mb-3">
-      <label for="image" class="form-label">Image Url</label>
-      <input
-        name="listing[image]"
-        placeholder="Enter the Image url"
-        class="form-control"
-      />
-    </div>
-    <div class="row">
-    <div class="mb-3 col-md-4">
-      <label for="price" class="form-label">Price</label>
-      <input
-        name="listing[price]"
-        placeholder="1200"
-        type="number"
-        class="form-control"
-      />
-    </div>
-    <div class="mb-3 col-md-8">
-      <label for="country" class="form-label">Country</label>
-      <input
-        name="listing[country]"
-        placeholder="India"
-        class="form-control"
-      />
-    </div>
-    </div>
-    <div class="mb-3">
-      <label for="location" class="form-label">Location</label>
-      <input
-        name="listing[location]"
-        placeholder="Lucknow,UP"
-        class="form-control"
-      />
-    </div>
-    
+      <form method="post" action="/listing" novalidate class="needs-validation">
+        <div class="mb-3">
+          <label for="title" class="form-label">Title</label>
+          <input
+            name="listing[title]"
+            placeholder="Add a catchy title"
+            class="form-control"
+            required
+          />
+          <div class="valid-feedback">Title looks good</div>
+          <div class="invalid-feedback">Enter correct title</div>
+        </div>
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea
+            name="listing[description]"
+            placeholder="Enter the description"
+            type="text"
+            class="form-control"
+            required
+          ></textarea>
+          <div class="invalid-feedback">Enter correct Description</div>
+        </div>
+        <div class="mb-3">
+          <label for="image" class="form-label">Image Url</label>
+          <input
+            name="listing[image]"
+            placeholder="Enter the Image url"
+            class="form-control"
+          />
+        </div>
+        <div class="row">
+          <div class="mb-3 col-md-4">
+            <label for="price" class="form-label">Price</label>
+            <input
+              name="listing[price]"
+              placeholder="1200"
+             
+              class="form-control"
+              required
+            />
+            <div class="invalid-feedback">Enter correct Price</div>
+          </div>
+          <div class="mb-3 col-md-8">
+            <label for="country" class="form-label">Country</label>
+            <input
+              name="listing[country]"
+              placeholder="India"
+              class="form-control"
+              required
+            />
+            <div class="invalid-feedback">Enter correct country</div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="location" class="form-label">Location</label>
+          <input
+            name="listing[location]"
+            placeholder="Lucknow,UP"
+            class="form-control"
+            required
+          />
+          <div class="invalid-feedback">Enter correct Location</div>
+        </div>
 
-    <button class="btn btn-dark add-btn" type="submit">Create</button>
-  </form>
-  <br><br>
+        <button class="btn btn-dark add-btn" type="submit">Create</button>
+      </form>
+      <br /><br />
+    </div>
   </div>
-  </div>
-  
 </body>
