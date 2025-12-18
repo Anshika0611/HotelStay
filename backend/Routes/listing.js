@@ -3,20 +3,7 @@ const router = express.Router();
 const wrapAsync = require("../utils/wrapAsync.js");
 const List = require("../Models/listing.js");
 const ExpressError = require("../utils/ExpressError.js");
-const { listingSchema } = require("../schema.js");
-
-const validateSchema = (req, res, next) => {
-  // console.log(req.body);
-  const { error } = listingSchema.validate(req.body);
-  // console.log(error);
-  if (error) {
-    // we can print just the msg
-    let errMsg = error.details.map((el) => el.message).join(",");
-    throw new ExpressError(400, errMsg);
-  } else {
-    next();
-  }
-};
+const { isLoggedIn, isOwner, validateListing } = require("../middleware.js");
 
 //index route
 router.get(
@@ -28,12 +15,13 @@ router.get(
 );
 
 //creating new listing
-router.get("/new", (req, res) => {
+router.get("/new", isLoggedIn, (req, res) => {
   res.render("listings/new.ejs");
 });
 router.post(
   "/",
-  validateSchema,
+  isLoggedIn,
+  validateListing,
   wrapAsync(async (req, res, next) => {
     // console.log(req.body.listing);
     // let{title,description,image,price,location,country}=req.body
@@ -66,6 +54,7 @@ router.post(
       };
     }
     const newListing = new List(listing);
+    newListing.owner = req.user._id;
     await newListing.save();
     req.flash("success", "new listing created");
     // console.log(newListing);
@@ -78,11 +67,13 @@ router.get(
   "/:id",
   wrapAsync(async (req, res) => {
     let { id } = req.params;
-    let post = await List.findById(id).populate("reviews");
+    let post = await List.findById(id)
+      .populate({ path: "reviews", populate: { path: "author" } }) //to get the author for each review we do nested populate
+      .populate("owner");
     // console.log(post);
-    if(!post){
-      req.flash("error","Listing you are requesting for does not exist")
-      return res.redirect('/listing')
+    if (!post) {
+      req.flash("error", "Listing you are requesting for does not exist");
+      return res.redirect("/listing");
     }
     res.render("listings/show", { post });
   })
@@ -91,19 +82,23 @@ router.get(
 // edit the existing listing
 router.get(
   "/:id/edit",
+  isLoggedIn,
+  isOwner,
   wrapAsync(async (req, res) => {
     let { id } = req.params;
     let list = await List.findById(id);
-     if(!list){
-      req.flash("error","Listing you are requesting for does not exist")
-      return res.redirect('/listing')
+    if (!list) {
+      req.flash("error", "Listing you are requesting for does not exist");
+      return res.redirect("/listing");
     }
     res.render("listings/edit.ejs", { list });
   })
 );
 router.patch(
   "/:id",
-  validateSchema,
+  isLoggedIn,
+  isOwner,
+  validateListing,
   wrapAsync(async (req, res, next) => {
     let { id } = req.params;
     let listing = req.body.listing;
@@ -122,7 +117,7 @@ router.patch(
     }
     await List.findByIdAndUpdate(id, listing);
     req.flash("success", " listing updated");
-    console.log("updated");
+    // console.log("updated");
     res.redirect(`/listing/${id}`);
   })
 );
@@ -130,10 +125,12 @@ router.patch(
 //delete the listing
 router.delete(
   "/:id",
+  isLoggedIn,
+  isOwner,
   wrapAsync(async (req, res) => {
     let { id } = req.params;
     await List.findByIdAndDelete(id);
-    req.flash("success","Listing has been deleted")
+    req.flash("success", "Listing has been deleted");
     res.redirect("/listing");
   })
 );
