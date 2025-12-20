@@ -1,3 +1,6 @@
+if (process.env.NODE_ENV != "production") {
+  require("dotenv").config();
+}
 const express = require("express");
 const app = express();
 const path = require("path");
@@ -7,38 +10,38 @@ const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError");
 
 const listingRouter = require("./Routes/listing.js");
-const reviewRouter=require('./Routes/review.js')
-const userRouter=require('./Routes/user.js')
+const reviewRouter = require("./Routes/review.js");
+const userRouter = require("./Routes/user.js");
 
 app.use(methodOverride("_method"));
 
-const flash=require('connect-flash')
-const session=require('express-session')
+const flash = require("connect-flash");
+const session = require("express-session");
 
-const User=require('./Models/user.js')
-const passport=require('passport')
-const LocalStrategy=require('passport-local')
+const User = require("./Models/user.js");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
 
-const sessionOption={
-  secret:"mysecretkey",
-  resave:false,
-  saveUninitialized:true,
-  cookie:{
-    expires:Date.now()+ 7*24*60*60*1000,
-    maxAge:7*24*60*60*1000,
-    httpOnly:true
-  }
-}
-app.use(session(sessionOption))
-app.use(flash())
+const sessionOption = {
+  secret: "mysecretkey",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+  },
+};
+app.use(session(sessionOption));
+app.use(flash());
 
-app.use(passport.initialize()) // middleware that intializes passport 
-app.use(passport.session()) //this is used so that every req knows the session they are in and user does not have to login with tab switches
+app.use(passport.initialize()); // middleware that intializes passport
+app.use(passport.session()); //this is used so that every req knows the session they are in and user does not have to login with tab switches
 passport.use(new LocalStrategy(User.authenticate())); // this means user will be authenticated using localstrategy which is already written in passport
 passport.serializeUser(User.serializeUser()); //user se related jitni info h usse session me store krna
 passport.deserializeUser(User.deserializeUser());
 
-mongoose.set('strictQuery', true); // since we reduced the version of mongodb so to ignore warnings this is written
+mongoose.set("strictQuery", true); // since we reduced the version of mongodb so to ignore warnings this is written
 
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 main()
@@ -58,28 +61,26 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-
-
 app.get("/", (req, res) => {
   res.send("working");
 });
 
 //middleware for flash
-app.use((req,res,next)=>{
-  res.locals.success=req.flash("success")
-  res.locals.error=req.flash("error")
-  res.locals.currUser=req.user
-  next()
-})
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  res.locals.currUser = req.user;
+  next();
+});
 // creating a demo user
-app.get('/demouser',async(req,res)=>{
-    let fakeUser=new User({
-      email:'test123@gmail.com',
-      username:'John Doe',
-    })
-    let registeredUser=await User.register(fakeUser,"helloworld");
-    res.send(registeredUser)
-})
+app.get("/demouser", async (req, res) => {
+  let fakeUser = new User({
+    email: "test123@gmail.com",
+    username: "John Doe",
+  });
+  let registeredUser = await User.register(fakeUser, "helloworld");
+  res.send(registeredUser);
+});
 // The output for the above user is
 // {
 //   "email": "test123@gmail.com",
@@ -107,14 +108,14 @@ app.get('/demouser',async(req,res)=>{
 
 app.use("/listing", listingRouter); //go to routes to understand them
 // adding reviews
-app.use('/listing/:id/review',reviewRouter)
+app.use("/listing/:id/review", reviewRouter);
 //authentication
-app.use('/',userRouter)
+app.use("/", userRouter);
 
 // lets create a generic route for when none of the above path match
-app.use((req, res, next) => {
-  next(new ExpressError(404, "Page Not Found"));
-});
+// app.use((req, res, next) => {
+//   next(new ExpressError(404, "Page Not Found"));
+// });
 
 //error handling
 // app.use((err, req, res, next) => {
