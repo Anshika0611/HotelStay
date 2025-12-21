@@ -17,12 +17,6 @@ const listingSchema = new Schema({
     },
     url: {
       type: String,
-      default:
-        "https://news.airbnb.com/wp-content/uploads/sites/4/2019/06/PJM020719Q202_Luxe_WanakaNZ_LivingRoom_0264-LightOn_R1.jpg?fit=2500%2C1666",
-      set: (v) =>
-        v === ""
-          ? "https://news.airbnb.com/wp-content/uploads/sites/4/2019/06/PJM020719Q202_Luxe_WanakaNZ_LivingRoom_0264-LightOn_R1.jpg?fit=2500%2C1666"
-          : v,
     },
   },
   price: {
@@ -40,11 +34,21 @@ const listingSchema = new Schema({
       ref: "Review",
     },
   ],
-  owner:
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref:'User'
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  geography: {
+    type: {
+      type: String, // Don't do `{ location: { type: String } }`
+      enum: ["Point"], // 'location.type' must be 'Point'
+      required: true,
     },
+    coordinates: {
+      type: [Number],
+      required: true,
+    },
+  },
 });
 
 // post mongoose m/w
