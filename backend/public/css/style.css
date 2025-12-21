@@ -110,3 +110,9 @@ justify-content: center;
   margin-right: 1rem; 
   margin-top: 3rem;
 }
+
+/* MAP */
+#map { 
+  height: 400px;
+  width: 80vh;
+}

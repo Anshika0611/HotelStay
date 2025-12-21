@@ -1,4 +1,6 @@
 const List = require("../Models/listing");
+const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+const geocodingClient = mbxGeocoding({ accessToken: process.env.MAP_TOKEN });
 
 module.exports.index = async (req, res) => {
   let list = await List.find({});
@@ -20,6 +22,14 @@ module.exports.showListing = async (req, res) => {
   res.render("listings/show", { post });
 };
 module.exports.createListing = async (req, res, next) => {
+  let coordinate= await geocodingClient.forwardGeocode({
+  query: req.body.listing.location,
+  limit: 1 // this sets the limit on how many responses do we want 
+})
+  .send();
+  const location=coordinate.body.features[0].geometry
+  // console.log(coordinate.body.features[0].geometry);
+  // return res.send("done")
   if (!req.body.listing) {
     next(new ExpressError(400, "send correct data to the api"));
   }
@@ -44,6 +54,7 @@ module.exports.createListing = async (req, res, next) => {
   const newListing = new List(listing);
   newListing.owner = req.user._id;
   newListing.image = { filename, url }; // this will add image into backend
+  newListing.geography=location
   await newListing.save();
   req.flash("success", "new listing created");
   res.redirect("/listing");
@@ -55,27 +66,27 @@ module.exports.renderEditForm = async (req, res) => {
     req.flash("error", "Listing you are requesting for does not exist");
     return res.redirect("/listing");
   }
-  res.render("listings/edit.ejs", { list });
+  //not doing the preview bc it is working only for the cloudinary urls not the past listings
+  // we will edit the things in img here for the img preview
+  // let original_Img=list.image.url
+  // original_Img=original_Img.replace('/upload','/upload/w_250,h_200')
+  // res.render("listings/edit.ejs", { list,original_Img});
+  res.render("listings/edit.ejs", { list});
+
 };
 module.exports.updatedListing = async (req, res, next) => {
   let { id } = req.params;
-  let listing = req.body.listing;
   if (!req.body.listing) {
     next(new ExpressError(400, "send correct data to the api"));
   }
-  // console.log(...req.body.listing);
-  if (listing.image && listing.image.trim() !== "") {
-    listing.image = {
-      filename: "listingimage",
-      url: listing.image,
-    };
-  } else {
-    // If empty → keep existing image (don’t overwrite)
-    delete listing.image;
+  const listing = await List.findByIdAndUpdate(id, req.body.listing); //we first let other than img file update bc they are coming from req.body rather than req.file after this img gets updated in the db
+    if (typeof req.file !== "undefined") {
+    let url = req.file.path;
+    let filename = req.file.filename;
+    listing.image = { url, filename };
+    await listing.save();
   }
-  await List.findByIdAndUpdate(id, listing);
   req.flash("success", " listing updated");
-  // console.log("updated");
   res.redirect(`/listing/${id}`);
 };
 module.exports.deleteListing = async (req, res) => {
