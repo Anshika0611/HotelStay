@@ -1,7 +1,9 @@
 const List = require("../Models/listing");
-const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
+if (!process.env.MAP_TOKEN) {
+  throw new Error("MAP_TOKEN environment variable is required");
+}
 const geocodingClient = mbxGeocoding({ accessToken: process.env.MAP_TOKEN });
-
 module.exports.index = async (req, res) => {
   let list = await List.find({});
   res.render("./listings/index.ejs", { list });
@@ -22,12 +24,13 @@ module.exports.showListing = async (req, res) => {
   res.render("listings/show", { post });
 };
 module.exports.createListing = async (req, res, next) => {
-  let coordinate= await geocodingClient.forwardGeocode({
-  query: req.body.listing.location,
-  limit: 1 // this sets the limit on how many responses do we want 
-})
-  .send();
-  const location=coordinate.body.features[0].geometry
+  let coordinate = await geocodingClient
+    .forwardGeocode({
+      query: req.body.listing.location,
+      limit: 1, // this sets the limit on how many responses do we want
+    })
+    .send();
+  const location = coordinate.body.features[0].geometry;
   // console.log(coordinate.body.features[0].geometry);
   // return res.send("done")
   if (!req.body.listing) {
@@ -54,7 +57,7 @@ module.exports.createListing = async (req, res, next) => {
   const newListing = new List(listing);
   newListing.owner = req.user._id;
   newListing.image = { filename, url }; // this will add image into backend
-  newListing.geography=location
+  newListing.geography = location;
   await newListing.save();
   req.flash("success", "new listing created");
   res.redirect("/listing");
@@ -71,16 +74,34 @@ module.exports.renderEditForm = async (req, res) => {
   // let original_Img=list.image.url
   // original_Img=original_Img.replace('/upload','/upload/w_250,h_200')
   // res.render("listings/edit.ejs", { list,original_Img});
-  res.render("listings/edit.ejs", { list});
-
+  res.render('listings/edit.ejs',{list});
 };
 module.exports.updatedListing = async (req, res, next) => {
   let { id } = req.params;
   if (!req.body.listing) {
     next(new ExpressError(400, "send correct data to the api"));
   }
+
+  // Update geography if location changed
+  if (req.body.listing.location) {
+    try {
+      const coordinate = await geocodingClient
+        .forwardGeocode({
+          query: req.body.listing.location,
+          limit: 1,
+        })
+        .send();
+
+      if (coordinate.body.features && coordinate.body.features.length > 0) {
+        req.body.listing.geography = coordinate.body.features[0].geometry;
+      }
+    } catch (error) {
+      return next(new ExpressError(500, "Failed to geocode location"));
+    }
+  }
+
   const listing = await List.findByIdAndUpdate(id, req.body.listing); //we first let other than img file update bc they are coming from req.body rather than req.file after this img gets updated in the db
-    if (typeof req.file !== "undefined") {
+  if (typeof req.file !== "undefined") {
     let url = req.file.path;
     let filename = req.file.filename;
     listing.image = { url, filename };
@@ -89,6 +110,7 @@ module.exports.updatedListing = async (req, res, next) => {
   req.flash("success", " listing updated");
   res.redirect(`/listing/${id}`);
 };
+
 module.exports.deleteListing = async (req, res) => {
   let { id } = req.params;
   await List.findByIdAndDelete(id);
