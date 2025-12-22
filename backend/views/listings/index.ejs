@@ -1,15 +1,118 @@
 <%- layout('/layouts/boilerplate') %>
 <!-- ejs mate -->
+<style>
+  .scroll {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 8px 0;
+  }
+  #filters {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .filter {
+    text-align: center;
+    margin-top: 1rem;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+  .filter:hover {
+    opacity: 1;
+    cursor: pointer;
+  }
+  .filter p {
+    font-size: 0.8rem;
+  }
+  .tax-info {
+    display: none;
+  }
+  .tax-toggle {
+    border: 1px solid black;
+    border-radius: 1rem;
+    height: 3.25rem;
+    padding: 1rem;
+    margin-left: 2rem;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 8px;
+  }
+</style>
 <body>
-  <br />
-  <h1>Here are all the places</h1>
-  <br />
+  <div class="scroll">
+    <div id="filters">
+      <div class="filter">
+        <div><i class="fa-solid fa-fire"></i></div>
+        <p>Trending</p>
+      </div>
+      <div class="filter">
+        <div><i class="fa-solid fa-bed"></i></div>
+        <p>Rooms</p>
+      </div>
+      <div class="filter">
+        <div><i class="fa-solid fa-mountain-city"></i></div>
+        <p>Iconic City</p>
+      </div>
+      <div class="filter">
+        <div><i class="fa-solid fa-mountain"></i></div>
+        <p>Mountains</p>
+      </div>
+      <div class="filter">
+        <div><i class="fa-solid fa-umbrella-beach"></i></div>
+        <p>Beach</p>
+      </div>
+      <div class="filter">
+        <div><i class="fa-solid fa-water"></i></div>
+        <p>Lakefront</p>
+      </div>
+      <div class="filter">
+        <div><i class="fa-solid fa-chess-rook"></i></div>
+        <p>castle</p>
+      </div>
+      <div class="filter">
+        <div><i class="fa-solid fa-water-ladder"></i></div>
+        <p>Amazing Pools</p>
+      </div>
+      <div class="filter">
+        <div><i class="fa-solid fa-umbrella-beach"></i></div>
+        <p>Beach</p>
+      </div>
+      <div class="filter">
+        <div><i class="fa-solid fa-water"></i></div>
+        <p>Lakefront</p>
+      </div>
+      <div class="filter">
+        <div><i class="fa-solid fa-umbrella-beach"></i></div>
+        <p>Beach</p>
+      </div>
+      <div class="filter">
+        <div><i class="fa-solid fa-water"></i></div>
+        <p>Lakefront</p>
+      </div>
+    </div>
+    <div class="tax-toggle">
+      <div class="form-check-reverse form-switch">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="flexSwitchCheckDefault"
+        />
+        <label class="form-check-label" for="flexSwitchCheckDefault"
+          >Display total after taxes</label
+        >
+      </div>
+    </div>
+  </div>
   <!-- <form method="get" action="/listing/new">
         <button type="submit">
             Create new Location
         </button>
     </form> -->
-  <div class="row g-3 row-cols-lg-3 row-cols-md-2 row-cols-sm-1">
+  <div class="row g-3 row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-2">
     <% for(post of list){%>
     <a href="/listing/<%=post.id%>" class="listing">
       <div class="card">
@@ -24,6 +127,7 @@
           <p class="card-text">
             <B><%= post.title %><br /></B>
             &#x20b9; <%=post.price.toLocaleString('en-IN') %> /night
+            <i class="tax-info">&nbsp; &nbsp; +18% GST</i>
           </p>
         </div>
       </div>
@@ -31,3 +135,4 @@
     <%}%>
   </div>
 </body>
+<script src="/js/toggle.js"></script>

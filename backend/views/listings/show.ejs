@@ -1,6 +1,5 @@
 <%- layout('/layouts/boilerplate') %>
 <script>
-    // @ts-nocheck
   let mapToken = "<%= process.env.MAP_TOKEN%>";
   const listing= JSON.parse('<%- JSON.stringify(post)%>'); //json.parse is added only bc this(JSON.stringify(post.geography.coordinates) isnt real js so VSC was showing err even though the code was working
 </script>

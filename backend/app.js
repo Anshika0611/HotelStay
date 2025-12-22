@@ -17,13 +17,24 @@ app.use(methodOverride("_method"));
 
 const flash = require("connect-flash");
 const session = require("express-session");
-
+const MongoStore = require("connect-mongo").default; // .default is used bc in v6 of mongoStore implecitely it uses ES6 module to import and export and since we are requiring it, this shows  err without default
 const User = require("./Models/user.js");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 
+const store = MongoStore.create({
+  mongoUrl: process.env.MONGO_URI,
+  crypto: {
+    secret: process.env.SECRET,
+  },
+  touchAfter: 24 * 60 * 60,
+});
+store.on("err", () => {
+  console.log("ERROR IN MONGO SESSION STORE", err);
+});
 const sessionOption = {
-  secret: "mysecretkey",
+  store,
+  secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: {
@@ -43,7 +54,8 @@ passport.deserializeUser(User.deserializeUser());
 
 mongoose.set("strictQuery", true); // since we reduced the version of mongodb so to ignore warnings this is written
 
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+const MONGO_URL =
+  process.env.MONGO_URI || "mongodb://127.0.0.1:27017/wanderlust";
 main()
   .then(() => {
     console.log("connected to db");
@@ -61,9 +73,9 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("working");
-});
+// app.get("/", (req, res) => {
+//   res.send("working");
+// });
 
 //middleware for flash
 app.use((req, res, next) => {
@@ -113,9 +125,9 @@ app.use("/listing/:id/review", reviewRouter);
 app.use("/", userRouter);
 
 // lets create a generic route for when none of the above path match
-// app.use((req, res, next) => {
-//   next(new ExpressError(404, "Page Not Found"));
-// });
+app.use((req, res, next) => {
+  next(new ExpressError(404, "Page Not Found"));
+});
 
 //error handling
 // app.use((err, req, res, next) => {
