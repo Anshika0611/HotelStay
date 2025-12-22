@@ -126,7 +126,10 @@ app.use("/", userRouter);
 
 // lets create a generic route for when none of the above path match
 app.use((req, res, next) => {
-  next(new ExpressError(404, "Page Not Found"));
+  req.flash("error","The Page You Requested DNE")
+  setTimeout(() => {
+    res.redirect('/listing')
+  }, 1000);
 });
 
 //error handling
